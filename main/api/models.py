@@ -36,12 +36,16 @@ class Cover(models.Model):
 
 class Book(models.Model):
 
+    class CategoryChoice(models.IntegerChoices):
+        FICTION = 0, 'Художественная литература'
+        NON_FICTION = 1, 'Научная литература'
+
     title = models.CharField(max_length=100, verbose_name='Название книги', blank=False, unique=False)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, max_length=100, verbose_name='Автор', blank=False)
     yearOfRel = models.IntegerField(verbose_name='Год выпуска', blank=False,
                                     validators=[MinValueValidator(1000), MaxValueValidator(9999)])
     genre = models.CharField(max_length=100, verbose_name='Жанр', blank=True)
-    category = models.CharField(max_length=100, verbose_name='Категория', blank=True)
+    category = models.IntegerField(choices=CategoryChoice.choices, verbose_name='Категория', blank=True)
     publisher = models.CharField(max_length=100, verbose_name='Издательство', blank=True)
 
     def validate_image(value):
@@ -50,8 +54,8 @@ class Book(models.Model):
             raise forms.ValidationError('Файл слишком большой. Размер файла не должен превышать 2MB')
 
     photoPreview = models.ImageField(validators=[validate_image], upload_to='cover', verbose_name='Изображения',
-                                     blank=False, null=True)
-    bookFile = models.FileField(upload_to='books', verbose_name='Файл с книгой', blank=False, null=True)
+                                     blank=True, null=True, default=None)
+    bookFile = models.FileField(upload_to='books', verbose_name='Файл с книгой', blank=True, default=None, null=True)
 
     class Meta:
         unique_together = ('title', 'author', 'yearOfRel', 'publisher')

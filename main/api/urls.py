@@ -1,10 +1,17 @@
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework import routers
+from api.views import *
 
-from api.views import BookListAPI, AuthorListAPI, AuthorCreateAPI
+routerA = routers.SimpleRouter()
+routerA.register(r'author', AuthorListAndDetailAPI)
+
+routerB = routers.SimpleRouter()
+routerB.register(r'books', BookListAndDetailAPI)
 
 urlpatterns = [
-    path('api/v1/booklist', BookListAPI.as_view()),
-    path('api/v1/authorlist', AuthorListAPI.as_view()),
-    path('api/v1/authorCreate', AuthorCreateAPI.as_view()),
+    path('api/v1/', include(routerA.urls)),
+    path('api/v1/', include(routerB.urls)),
+    path('api/v1/add_book', AddBookAPI.as_view()),
+
 ]
