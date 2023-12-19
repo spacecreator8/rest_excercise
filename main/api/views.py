@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework import generics, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
+from rest_framework.filters import SearchFilter
 from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
@@ -18,6 +19,7 @@ class AddBookAPI(APIView):
         serializer = AddBookSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
+        #проверка на наличие одноименной книги
         if Book.objects.filter(title=serializer.validated_data['title']).exists():
             queryset = Book.objects.filter(title=serializer.validated_data['title'])
             raise_ex_flag = True
@@ -53,6 +55,8 @@ class AddBookAPI(APIView):
 class BookListAndDetailAPI(viewsets.ReadOnlyModelViewSet):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
+    filter_backends = [SearchFilter]
+    search_fields = ['title', 'genre']
 
 
 class AuthorListAndDetailAPI(viewsets.ReadOnlyModelViewSet):
